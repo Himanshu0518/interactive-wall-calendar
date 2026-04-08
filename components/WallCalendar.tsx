@@ -70,7 +70,7 @@ export function WallCalendar() {
             <HeroImage />
           </motion.div>
 
-          {/* Right panel: header + grid + notes */}
+          {/*  header + grid + notes */}
           <motion.div
             className="calendar-main-col"
             initial={{ opacity: 0, x: 20 }}

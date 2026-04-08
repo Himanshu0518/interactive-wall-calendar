@@ -114,6 +114,16 @@ export function CalendarHeader() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
           <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={goToTodayFn}
+            className="calendar-nav-btn"
+            aria-label="Go to today"
+            style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem', fontWeight: 600, marginRight: '0.2rem' }}
+          >
+            Today
+          </motion.button>
+          <motion.button
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.9 }}
             onClick={prevMonth}
