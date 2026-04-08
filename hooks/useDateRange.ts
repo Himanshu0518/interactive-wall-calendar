@@ -15,9 +15,15 @@ export function useDateRange() {
 
   const handleDayClick = useCallback(
     (date: string) => {
-      if (!isSelectingRange || !dateRange.start) {
+      // If we are actively selecting and the user clicks the exact same start date,
+      // toggle it off (clear the entire selection so they can see the whole month again).
+      if (isSelectingRange && dateRange.start === date) {
+        dispatch(clearDateRange())
+      } else if (!isSelectingRange || !dateRange.start) {
+        // Start a completely new selection 
         dispatch(setDateRangeStart(date))
       } else {
+        // Complete the range selection
         dispatch(setDateRangeEnd(date))
       }
     },

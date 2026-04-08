@@ -7,10 +7,18 @@ export function useNotes() {
   const dispatch = useAppDispatch()
   const { notes, dateRange } = useAppSelector((s) => s.calendar)
 
+  const currentRangeKey = useMemo(() => {
+    if (!dateRange.start) return null
+    const end = dateRange.end ?? dateRange.start
+    const s = dateRange.start <= end ? dateRange.start : end
+    const e = dateRange.start <= end ? end : dateRange.start
+    return `${s}_${e}`
+  }, [dateRange.start, dateRange.end])
+
   const addNewNote = useCallback(
-    (date: string, content: string) => {
+    (rangeKey: string, content: string) => {
       if (!content.trim()) return
-      dispatch(addNote({ date, content: content.trim() }))
+      dispatch(addNote({ rangeKey, content: content.trim() }))
     },
     [dispatch]
   )
@@ -27,43 +35,31 @@ export function useNotes() {
     [dispatch]
   )
 
-  // Notes for the currently selected date range
+  // Notes tied exactly to the currently selected date range
   const notesForRange = useMemo<Note[]>(() => {
-    if (!dateRange.start) return []
-    const end = dateRange.end ?? dateRange.start
-    const s = dateRange.start <= end ? dateRange.start : end
-    const e = dateRange.start <= end ? end : dateRange.start
-    return notes.filter((n) => n.date >= s && n.date <= e)
-  }, [notes, dateRange])
+    if (!currentRangeKey) return []
+    return notes.filter((n) => n.rangeKey === currentRangeKey)
+  }, [notes, currentRangeKey])
 
-  const notesByDate = useMemo<Record<string, Note[]>>(() => {
-    return notes.reduce<Record<string, Note[]>>((acc, note) => {
-      if (!acc[note.date]) acc[note.date] = []
-      acc[note.date].push(note)
-      return acc
-    }, {})
-  }, [notes])
-
+  // Check if a specific date lies inside ANY note's rangeKey interval
   const hasNotesOnDate = useCallback(
-    (date: string) => !!notesByDate[date]?.length,
-    [notesByDate]
+    (date: string) => {
+      return notes.some((note) => {
+        const [start, end] = note.rangeKey.split('_')
+        return date >= start && date <= end
+      })
+    },
+    [notes]
   )
-
-  // Default note date: start of range or today
-  const defaultNoteDate = useMemo(() => {
-    if (dateRange.start) return dateRange.start
-    const d = new Date()
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-  }, [dateRange.start])
 
   return {
     notes,
     notesForRange,
-    notesByDate,
     hasNotesOnDate,
-    defaultNoteDate,
+    currentRangeKey,
     addNewNote,
     editNote,
     removeNote,
   }
 }
+

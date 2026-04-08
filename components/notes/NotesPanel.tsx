@@ -7,13 +7,13 @@ import { useNotes } from '@/hooks/useNotes'
 import { NoteItem } from './NoteItem'
 
 export function NotesPanel() {
-  const { notesForRange, defaultNoteDate, addNewNote, editNote, removeNote } = useNotes()
+  const { notesForRange, currentRangeKey, addNewNote, editNote, removeNote } = useNotes()
   const [inputValue, setInputValue] = useState('')
   const [isAdding, setIsAdding] = useState(false)
 
   const handleAdd = () => {
-    if (!inputValue.trim()) return
-    addNewNote(defaultNoteDate, inputValue)
+    if (!inputValue.trim() || !currentRangeKey) return
+    addNewNote(currentRangeKey, inputValue)
     setInputValue('')
     setIsAdding(false)
   }
@@ -31,7 +31,7 @@ export function NotesPanel() {
           <StickyNote size={13} style={{ opacity: 0.5 }} />
           <span className="notes-title">Notes</span>
           <AnimatePresence mode="wait">
-            {notesForRange.length > 0 && (
+            {notesForRange.length > 0 && currentRangeKey && (
               <motion.span
                 key={notesForRange.length}
                 initial={{ opacity: 0, scale: 0.7 }}
@@ -48,10 +48,11 @@ export function NotesPanel() {
         <motion.button
           onClick={() => setIsAdding(true)}
           className="notes-add-btn"
-          disabled={isAdding}
-          whileHover={{ scale: 1.06 }}
-          whileTap={{ scale: 0.93 }}
+          disabled={isAdding || !currentRangeKey}
+          whileHover={{ scale: !isAdding && currentRangeKey ? 1.06 : 1 }}
+          whileTap={{ scale: !isAdding && currentRangeKey ? 0.93 : 1 }}
           transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+          style={{ opacity: !currentRangeKey ? 0.4 : 1, cursor: !currentRangeKey ? 'not-allowed' : 'pointer' }}
         >
           <Plus size={11} /> Add
         </motion.button>
@@ -59,7 +60,7 @@ export function NotesPanel() {
 
       {/* Add form */}
       <AnimatePresence>
-        {isAdding && (
+        {isAdding && currentRangeKey && (
           <motion.div
             initial={{ opacity: 0, height: 0, y: -8 }}
             animate={{ opacity: 1, height: 'auto', y: 0 }}
@@ -101,9 +102,9 @@ export function NotesPanel() {
       {/* Notes list */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
         <AnimatePresence mode="popLayout">
-          {notesForRange.length === 0 && !isAdding && (
+          {!currentRangeKey && (
             <motion.div
-              key="empty"
+              key="empty-no-range"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -112,6 +113,19 @@ export function NotesPanel() {
             >
               <StickyNote size={22} strokeWidth={1.2} />
               <p>Select a date range<br />to see or add notes</p>
+            </motion.div>
+          )}
+
+          {currentRangeKey && notesForRange.length === 0 && !isAdding && (
+            <motion.div
+              key="empty-range"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="notes-empty"
+            >
+              <p style={{ margin: 0, opacity: 0.7 }}>No notes for this selection.<br/>Click <strong>Add</strong> to create one.</p>
             </motion.div>
           )}
           {notesForRange.map((note) => (

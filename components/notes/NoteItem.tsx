@@ -32,8 +32,13 @@ export function NoteItem({ note, onEdit, onDelete }: NoteItemProps) {
     setEditing(false)
   }
 
-  // Use date-fns for consistent formatting
-  const formattedDate = format(parseISO(note.date), 'MMM d')
+  // Use date-fns for consistent formatting. Handle both single day and range.
+  const [startD, endD] = note.rangeKey.split('_')
+  const formattedStart = format(parseISO(startD), 'MMM d')
+  const formattedDate =
+    startD === endD
+      ? formattedStart
+      : `${formattedStart} – ${format(parseISO(endD), 'MMM d')}`
 
   return (
     <motion.div

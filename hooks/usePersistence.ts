@@ -24,7 +24,10 @@ export function usePersistence() {
       if (savedNotes) {
         const parsed: Note[] = JSON.parse(savedNotes)
         parsed.forEach((note) => {
-          dispatch(addNote({ date: note.date, content: note.content }))
+          // Backward compatibility for notes that were saved with a single "date" field
+          const oldDate = (note as any).date
+          const rangeKey = oldDate ? `${oldDate}_${oldDate}` : note.rangeKey
+          dispatch(addNote({ rangeKey, content: note.content }))
         })
       }
     } catch {

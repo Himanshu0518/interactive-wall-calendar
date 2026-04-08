@@ -7,7 +7,7 @@ export interface DateRange {
 
 export interface Note {
   id: string
-  date: string // YYYY-MM-DD
+  rangeKey: string // format: YYYY-MM-DD_YYYY-MM-DD
   content: string
   createdAt: string
 }
@@ -79,10 +79,10 @@ const calendarSlice = createSlice({
     setHoveredDate(state, action: PayloadAction<string | null>) {
       state.hoveredDate = action.payload
     },
-    addNote(state, action: PayloadAction<{ date: string; content: string }>) {
+    addNote(state, action: PayloadAction<{ rangeKey: string; content: string }>) {
       const note: Note = {
         id: crypto.randomUUID(),
-        date: action.payload.date,
+        rangeKey: action.payload.rangeKey,
         content: action.payload.content,
         createdAt: new Date().toISOString(),
       }

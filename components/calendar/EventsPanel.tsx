@@ -26,19 +26,42 @@ export function EventsPanel() {
     return date >= s && date <= e
   }
 
-  if (monthEvents.length === 0) return null
+  // Determine which events to display based on UX rules:
+  // - No selection => show all month events
+  // - Selection => show ONLY events in the selected range
+  const displayEvents = useMemo(() => {
+    if (!dateRange.start) return monthEvents
+    return monthEvents.filter((event) => isInSelectedRange(event.date))
+  }, [monthEvents, dateRange])
+
+  if (displayEvents.length === 0 && !dateRange.start) return null
 
   return (
     <div className="events-panel">
       <div className="events-header">
         <CalendarHeart size={13} style={{ opacity: 0.5 }} />
-        <span className="events-title">Events</span>
-        <span className="events-count">({monthEvents.length})</span>
+        <span className="events-title">
+          {dateRange.start ? 'Selected Range Events' : 'Events'}
+        </span>
+        <span className="events-count">({displayEvents.length})</span>
       </div>
 
       <div className="events-list">
         <AnimatePresence mode="popLayout">
-          {monthEvents.map(({ date, holiday }, i) => {
+          {dateRange.start && displayEvents.length === 0 && (
+             <motion.div
+               key="no-events"
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               exit={{ opacity: 0 }}
+               className="event-name"
+               style={{ opacity: 0.5, fontSize: '0.65rem' }}
+             >
+               No events in selected range.
+             </motion.div>
+          )}
+
+          {displayEvents.map(({ date, holiday }, i) => {
             const inRange = isInSelectedRange(date)
             return (
               <motion.div
