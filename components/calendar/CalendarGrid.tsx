@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useCalendar } from '@/hooks/useCalendar'
 import { DayCellComponent } from './DayCell'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, Variants } from 'framer-motion'
 
 export function CalendarGrid() {
   const { dayNames, days, currentMonth, currentYear } = useCalendar()
@@ -23,7 +23,7 @@ export function CalendarGrid() {
     prevYear.current = currentYear
   }, [currentMonth, currentYear])
 
-  const variants = {
+  const variants: Variants = {
     enter: (dir: 'forward' | 'back') => ({
       x: dir === 'forward' ? 40 : -40,
       opacity: 0,

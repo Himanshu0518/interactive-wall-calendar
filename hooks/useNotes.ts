@@ -35,10 +35,16 @@ export function useNotes() {
     [dispatch]
   )
 
-  // Notes tied exactly to the currently selected date range
+  // Notes that overlap with the currently selected date range
   const notesForRange = useMemo<Note[]>(() => {
     if (!currentRangeKey) return []
-    return notes.filter((n) => n.rangeKey === currentRangeKey)
+    const [selStart, selEnd] = currentRangeKey.split('_')
+    
+    return notes.filter((n) => {
+      const [nStart, nEnd] = n.rangeKey.split('_')
+      // Check for overlap: Note start is before/on selection end AND Note end is after/on selection start
+      return nStart <= selEnd && nEnd >= selStart
+    })
   }, [notes, currentRangeKey])
 
   // Check if a specific date lies inside ANY note's rangeKey interval
