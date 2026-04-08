@@ -5,6 +5,32 @@
    THEME TOKENS  — set on <html data-theme="...">
    ================================================================ */
 
+/* Fallback default tokens */
+:root {
+  --cal-bg: oklch(0.96 0.007 60);
+  --cal-card: oklch(1 0 0);
+  --cal-card-border: oklch(0.88 0.008 60);
+  --cal-text: oklch(0.18 0.012 60);
+  --cal-text-muted: oklch(0.52 0.012 60);
+  --cal-accent: oklch(0.44 0.19 262);
+  --cal-accent-fg: oklch(0.99 0 0);
+  --cal-range-bg: oklch(0.88 0.07 262);
+  --cal-range-fg: oklch(0.28 0.16 262);
+  --cal-today-ring: oklch(0.44 0.19 262);
+  --cal-hover: oklch(0.93 0.04 262);
+  --cal-nav-bg: oklch(0.93 0.01 60);
+  --cal-nav-hover: oklch(0.87 0.04 262);
+  --cal-binding: oklch(0.72 0.05 262);
+  --cal-hero-gradient: linear-gradient(to top, oklch(0.1 0.03 262 / 0.72) 0%, transparent 62%);
+  --cal-note-bg: oklch(0.97 0.022 80);
+  --cal-note-border: oklch(0.88 0.03 80);
+  --cal-note-dot: oklch(0.52 0.19 262);
+  --cal-input-bg: oklch(0.94 0.012 80);
+  --cal-dropdown-bg: oklch(1 0 0);
+  --cal-holiday: oklch(0.55 0.2 28);
+  --cal-shadow: 0 24px 64px oklch(0.28 0.06 262 / 0.14), 0 4px 16px oklch(0.28 0.06 262 / 0.08);
+}
+
 [data-theme="light"] {
   --cal-bg: oklch(0.96 0.007 60);
   --cal-card: oklch(1 0 0);
@@ -130,38 +156,37 @@
   --cal-shadow: 0 24px 64px oklch(0.28 0.12 24 / 0.18), 0 4px 16px oklch(0.28 0.12 24 / 0.1);
 }
 
+
 /* ================================================================
-   BASE
+   BASE — outside @layer so these beat Tailwind's preflight
    ================================================================ */
-@layer base {
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
+html {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
 
-  html {
-    font-family: var(--font-geist-sans), system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
+body {
+  background-color: var(--cal-bg);
+  color: var(--cal-text);
+  transition: background-color 0.35s ease, color 0.35s ease;
+  min-height: 100svh;
+  margin: 0;
+}
 
-  body {
-    background-color: var(--cal-bg);
-    color: var(--cal-text);
-    transition: background-color 0.35s ease, color 0.35s ease;
-    min-height: 100svh;
-  }
+/* Thin scrollbar for notes */
+.scroll-thin::-webkit-scrollbar {
+  width: 3px;
+}
 
-  /* Thin scrollbar for notes */
-  .scroll-thin::-webkit-scrollbar {
-    width: 3px;
-  }
-
-  .scroll-thin::-webkit-scrollbar-thumb {
-    background: var(--cal-card-border);
-    border-radius: 4px;
-  }
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: var(--cal-card-border);
+  border-radius: 4px;
 }
 
 /* ================================================================
@@ -179,7 +204,7 @@
 
 .wall-calendar-card {
   width: 100%;
-  max-width: 900px;
+  max-width: 520px;
   background-color: var(--cal-card);
   border: 1px solid var(--cal-card-border);
   border-radius: 1.75rem;
@@ -247,27 +272,14 @@
   opacity: 0.6;
 }
 
-/* ── Body grid ── */
+/* ── Body layout — always vertical (wall calendar aesthetic) ── */
 .calendar-body {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0;
-}
-
-@media (min-width: 768px) {
-  .calendar-body {
-    grid-template-columns: 260px 1fr;
-  }
+  display: flex;
+  flex-direction: column;
 }
 
 .calendar-hero-col {
   padding: 1rem 1rem 0 1rem;
-}
-
-@media (min-width: 768px) {
-  .calendar-hero-col {
-    padding: 1rem;
-  }
 }
 
 .calendar-main-col {
@@ -304,16 +316,8 @@
   overflow: hidden;
   border-radius: 1.2rem;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 16 / 9;
   background-color: var(--cal-card-border);
-}
-
-@media (min-width: 768px) {
-  .hero-image-panel {
-    aspect-ratio: unset;
-    height: 100%;
-    min-height: 320px;
-  }
 }
 
 .hero-gradient {
@@ -442,6 +446,89 @@
 
 .note-dot {
   background-color: var(--cal-note-dot);
+}
+
+/* ================================================================
+   EVENTS PANEL
+   ================================================================ */
+.events-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0 0.2rem;
+}
+
+.events-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.events-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--cal-text-muted);
+}
+
+.events-count {
+  font-size: 0.68rem;
+  color: var(--cal-text-muted);
+  opacity: 0.5;
+}
+
+.events-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.event-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.6rem 0.28rem 0.4rem;
+  border-radius: 99px;
+  background-color: var(--cal-note-bg);
+  border: 1px solid var(--cal-note-border);
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  cursor: default;
+}
+
+.event-item:hover {
+  border-color: var(--cal-note-dot);
+  transform: scale(1.03);
+}
+
+.event-item-active {
+  background-color: var(--cal-range-bg);
+  border-color: var(--cal-accent);
+}
+
+.event-emoji {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.event-info {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.event-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--cal-text);
+  line-height: 1.2;
+}
+
+.event-date {
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: var(--cal-text-muted);
+  opacity: 0.7;
 }
 
 /* ================================================================

@@ -5,6 +5,7 @@ import { usePersistence } from '@/hooks/usePersistence'
 import { HeroImage } from './calendar/HeroImage'
 import { CalendarHeader } from './calendar/CalendarHeader'
 import { CalendarGrid } from './calendar/CalendarGrid'
+import { EventsPanel } from './calendar/EventsPanel'
 import { NotesPanel } from './notes/NotesPanel'
 import { ThemeSwitcher } from './ThemeSwitcher'
 import { motion } from 'framer-motion'
@@ -80,6 +81,12 @@ export function WallCalendar() {
 
             <div className="calendar-grid-wrapper">
               <CalendarGrid />
+            </div>
+
+            <div className="calendar-divider" />
+
+            <div className="calendar-events-wrapper">
+              <EventsPanel />
             </div>
 
             <div className="calendar-divider" />

@@ -31,3 +31,25 @@ export function getHoliday(dateStr: string): Holiday | null {
   const monthDay = dateStr.slice(5) // "MM-DD"
   return HOLIDAYS[monthDay] ?? null
 }
+
+/** Returns all holidays in a given month (0-indexed) */
+export function getHolidaysForMonth(
+  year: number,
+  month: number
+): { date: string; holiday: Holiday }[] {
+  const mm = String(month + 1).padStart(2, '0')
+  const results: { date: string; holiday: Holiday }[] = []
+
+  // Check every day in the month
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dd = String(d).padStart(2, '0')
+    const fullDate = `${year}-${mm}-${dd}`
+    const holiday = getHoliday(fullDate)
+    if (holiday) {
+      results.push({ date: fullDate, holiday })
+    }
+  }
+
+  return results
+}
