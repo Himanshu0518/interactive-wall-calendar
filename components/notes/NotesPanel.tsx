@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Plus, StickyNote } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useNotes } from '@/hooks/useNotes'
 import { NoteItem } from './NoteItem'
 
@@ -29,60 +30,94 @@ export function NotesPanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <StickyNote size={13} style={{ opacity: 0.5 }} />
           <span className="notes-title">Notes</span>
-          {notesForRange.length > 0 && (
-            <span className="notes-count">({notesForRange.length})</span>
-          )}
+          <AnimatePresence mode="wait">
+            {notesForRange.length > 0 && (
+              <motion.span
+                key={notesForRange.length}
+                initial={{ opacity: 0, scale: 0.7 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.7 }}
+                transition={{ duration: 0.15 }}
+                className="notes-count"
+              >
+                ({notesForRange.length})
+              </motion.span>
+            )}
+          </AnimatePresence>
         </div>
-        <button
+        <motion.button
           onClick={() => setIsAdding(true)}
           className="notes-add-btn"
           disabled={isAdding}
+          whileHover={{ scale: 1.06 }}
+          whileTap={{ scale: 0.93 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 18 }}
         >
           <Plus size={11} /> Add
-        </button>
+        </motion.button>
       </div>
 
       {/* Add form */}
-      {isAdding && (
-        <div className="note-input-wrapper" style={{ marginBottom: '0.5rem' }}>
-          <textarea
-            autoFocus
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Write a note… (Ctrl+Enter to save)"
-            className="note-textarea"
-            rows={3}
-          />
-          <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.4rem', justifyContent: 'flex-end' }}>
-            <button
-              onClick={() => { setInputValue(''); setIsAdding(false) }}
-              className="notes-cancel-btn"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleAdd}
-              disabled={!inputValue.trim()}
-              className="notes-save-btn"
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {isAdding && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, y: -8 }}
+            animate={{ opacity: 1, height: 'auto', y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -4 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            className="note-input-wrapper"
+            style={{ marginBottom: '0.5rem', overflow: 'hidden' }}
+          >
+            <textarea
+              autoFocus
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Write a note… (Ctrl+Enter to save)"
+              className="note-textarea"
+              rows={3}
+            />
+            <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.4rem', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => { setInputValue(''); setIsAdding(false) }}
+                className="notes-cancel-btn"
+              >
+                Cancel
+              </button>
+              <motion.button
+                onClick={handleAdd}
+                disabled={!inputValue.trim()}
+                className="notes-save-btn"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Save
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Notes list */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-        {notesForRange.length === 0 && !isAdding && (
-          <div className="notes-empty">
-            <StickyNote size={22} strokeWidth={1.2} />
-            <p>Select a date range<br />to see or add notes</p>
-          </div>
-        )}
-        {notesForRange.map((note) => (
-          <NoteItem key={note.id} note={note} onEdit={editNote} onDelete={removeNote} />
-        ))}
+        <AnimatePresence mode="popLayout">
+          {notesForRange.length === 0 && !isAdding && (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="notes-empty"
+            >
+              <StickyNote size={22} strokeWidth={1.2} />
+              <p>Select a date range<br />to see or add notes</p>
+            </motion.div>
+          )}
+          {notesForRange.map((note) => (
+            <NoteItem key={note.id} note={note} onEdit={editNote} onDelete={removeNote} />
+          ))}
+        </AnimatePresence>
       </div>
     </div>
   )

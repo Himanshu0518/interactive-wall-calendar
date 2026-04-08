@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Pencil, Trash2, Check, X } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { format, parseISO } from 'date-fns'
 import type { Note } from '@/store/slices/calendarSlice'
 
 interface NoteItemProps {
@@ -30,49 +32,76 @@ export function NoteItem({ note, onEdit, onDelete }: NoteItemProps) {
     setEditing(false)
   }
 
-  const formatDate = (dateStr: string) =>
-    new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', {
-      month: 'short', day: 'numeric',
-    })
+  // Use date-fns for consistent formatting
+  const formattedDate = format(parseISO(note.date), 'MMM d')
 
   return (
-    <div
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 10, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, x: -20, scale: 0.95, height: 0, marginBottom: 0, paddingTop: 0, paddingBottom: 0 }}
+      transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
       className="note-item"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.4rem' }}>
-        <span className="note-date-label">{formatDate(note.date)}</span>
+        <span className="note-date-label">{formattedDate}</span>
 
-        <div style={{
-          display: 'flex', gap: '0.2rem',
-          opacity: hovered ? 1 : 0,
-          transition: 'opacity 0.15s',
-        }}>
+        <motion.div
+          animate={{ opacity: hovered ? 1 : 0 }}
+          transition={{ duration: 0.15 }}
+          style={{ display: 'flex', gap: '0.2rem' }}
+        >
           {!editing ? (
             <>
-              <button onClick={() => setEditing(true)} className="note-action-btn" aria-label="Edit note">
+              <motion.button
+                onClick={() => setEditing(true)}
+                className="note-action-btn"
+                aria-label="Edit note"
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.85 }}
+              >
                 <Pencil size={11} />
-              </button>
-              <button onClick={() => onDelete(note.id)} className="note-action-btn note-delete-btn" aria-label="Delete note">
+              </motion.button>
+              <motion.button
+                onClick={() => onDelete(note.id)}
+                className="note-action-btn note-delete-btn"
+                aria-label="Delete note"
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.85 }}
+              >
                 <Trash2 size={11} />
-              </button>
+              </motion.button>
             </>
           ) : (
             <>
-              <button onClick={handleSave} className="note-action-btn note-save-btn-inline" aria-label="Save">
+              <motion.button
+                onClick={handleSave}
+                className="note-action-btn note-save-btn-inline"
+                aria-label="Save"
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.85 }}
+              >
                 <Check size={11} />
-              </button>
-              <button onClick={handleCancel} className="note-action-btn" aria-label="Cancel">
+              </motion.button>
+              <motion.button
+                onClick={handleCancel}
+                className="note-action-btn"
+                aria-label="Cancel"
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.85 }}
+              >
                 <X size={11} />
-              </button>
+              </motion.button>
             </>
           )}
-        </div>
+        </motion.div>
       </div>
 
       {editing ? (
-        <textarea
+        <motion.textarea
           ref={textareaRef}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
@@ -83,10 +112,20 @@ export function NoteItem({ note, onEdit, onDelete }: NoteItemProps) {
           className="note-textarea"
           style={{ marginTop: '0.25rem' }}
           rows={3}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.15 }}
         />
       ) : (
-        <p className="note-content">{note.content}</p>
+        <motion.p
+          className="note-content"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.15 }}
+        >
+          {note.content}
+        </motion.p>
       )}
-    </div>
+    </motion.div>
   )
 }
